@@ -1,9 +1,85 @@
-import example.pepita
+import mensajeros.*
+import empresaDeMensajeria.*
+import paquete.*
+import destinos.*
+import vehiculos.*
 
-describe "group of tests for pepita" {
+describe "Empresa de mensajeria" {
 
-  test "pepita has initial energy" {
-    assert.equals(100, pepita.energy())
+  method initialize() {
+    empresaMensajeria.despedirATodos()
+    paquete.pagar()
+    paquete.cambiarDestino(puenteDeBrooklyn)
+    roberto.cambiarVehiculo(bicicleta)
+    neo.darCredito(true)
   }
 
+  // 1. Contratar un mensajero
+  test "contratar un mensajero lo agrega a la empresa" {
+    empresaMensajeria.contratar(roberto)
+    assert.equals(1, empresaMensajeria.mensajeros.size())
+  }
+
+  // 2. Despedir un mensajero
+  test "despedir un mensajero lo quita de la empresa" {
+    empresaMensajeria.contratar(roberto)
+    empresaMensajeria.contratar(chuckNorris)
+    empresaMensajeria.despedir(roberto)
+    assert.equals(1, empresaMensajeria.mensajeros.size())
+  }
+
+  // 3. Despedir a todos
+  test "despedir a todos deja la empresa sin mensajeros" {
+    empresaMensajeria.contratar(roberto)
+    empresaMensajeria.contratar(chuckNorris)
+    empresaMensajeria.contratar(neo)
+    empresaMensajeria.despedirATodos()
+    assert.that(empresaMensajeria.mensajeros.isEmpty())
+  }
+
+  // 4. Empresa grande
+  test "la empresa es grande si tiene mas de dos mensajeros" {
+    empresaMensajeria.contratar(roberto)
+    empresaMensajeria.contratar(chuckNorris)
+    empresaMensajeria.contratar(neo)
+    assert.that(empresaMensajeria.esGrande())
+  }
+
+  test "la empresa no es grande con dos mensajeros" {
+    empresaMensajeria.contratar(roberto)
+    empresaMensajeria.contratar(chuckNorris)
+    assert.notThat(empresaMensajeria.esGrande())
+  }
+
+  // 5. El paquete puede ser entregado por el primero
+  test "el paquete puede ser entregado por el primer mensajero cuando cumple las condiciones" {
+    empresaMensajeria.contratar(chuckNorris)
+    empresaMensajeria.contratar(neo)
+    assert.that(empresaMensajeria.paquetePuedeSerEntregadoPorElPrimero(paquete))
+  }
+
+  test "el paquete no puede ser entregado por el primero si el paquete no esta pago" {
+    paquete.desmarcar()
+    empresaMensajeria.contratar(chuckNorris)
+    assert.notThat(empresaMensajeria.paquetePuedeSerEntregadoPorElPrimero(paquete))
+  }
+
+  test "el paquete no puede ser entregado por el primero si no cumple la restriccion del destino" {
+    paquete.cambiarDestino(laMatrix)
+    empresaMensajeria.contratar(roberto)
+    assert.notThat(empresaMensajeria.paquetePuedeSerEntregadoPorElPrimero(paquete))
+  }
+
+  // 6. Peso del ultimo mensajero
+  test "el peso del ultimo mensajero es el correcto" {
+    empresaMensajeria.contratar(roberto)
+    empresaMensajeria.contratar(neo)
+    assert.equals(0, empresaMensajeria.pesoDelUltimo())
+  }
+
+  test "el peso del ultimo mensajero cambia si se contrata uno nuevo" {
+    empresaMensajeria.contratar(neo)
+    empresaMensajeria.contratar(chuckNorris)
+    assert.equals(80, empresaMensajeria.pesoDelUltimo())
+  }
 }
